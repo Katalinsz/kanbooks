@@ -95,7 +95,7 @@ if( function_exists('acf_add_local_field_group') ) {
                 'type' => 'checkbox',
                 'instructions' => 'Who are the authors of your book. Check out them or add new ones in Kanbooks/authors.',
                 'required' => 1,
-                'choices' => array("red" => "red"),
+                'choices' => KANBooks_getAuthors_for_selectbox(),
                 'layout' => 0,
                 'allow_custom' => false,
                 'save_custom' => false,
@@ -191,50 +191,7 @@ if( function_exists('acf_add_local_field_group') ) {
         'kanbooks_meta_nonce' => true
         
     ));
-    
-    acf_add_local_field_group(array(
-        'key' => 'group_5ed29725075c3',
-        'title' => 'Author',
-        'fields' => array(
-            array(
-                'key' => 'field_5ed297330f04b',
-                'label' => 'Authors Full Name',
-                'name' => 'kanbooks_author_name',
-                'type' => 'text',
-                'instructions' => 'Type the author of your book.',
-                'required' => 1,
-                'conditional_logic' => 0,
-                'wrapper' => array(
-                    'width' => '',
-                    'class' => '',
-                    'id' => '',
-                ),
-                'default_value' => '',
-                'placeholder' => '',
-                'prepend' => '',
-                'append' => '',
-                'maxlength' => 70,
-            ),
-        ),
-        'location' => array(
-            array(
-                array(
-                    'param' => 'post_type',
-                    'operator' => '==',
-                    'value' => 'kanbooksauthor',
-                ),
-            ),
-        ),
-        'menu_order' => 0,
-        'position' => 'normal',
-        'style' => 'default',
-        'label_placement' => 'top',
-        'instruction_placement' => 'label',
-        'hide_on_screen' => '',
-        'active' => true,
-        'description' => '',
-    ));
-    
+   
 }
 
 ////////////Creating posttype
@@ -258,7 +215,8 @@ function KANBooks_create_post_type() {
     
     $args = array(
         'labels'              => $labels,
-        'public'              => false,
+        'public'              => true,
+        'has_archive'         => true,
         'exclude_from_search' => false,
         'publicly_queryable'  => true,
         'show_ui'             => true,
@@ -301,7 +259,8 @@ function KANBooks_author_create_post_type() {
     
     $args = array(
         'labels'              => $labels,
-        'public'              => false,
+        'public'              => true,
+        'has_archive'         => true,
         'exclude_from_search' => false,
         'publicly_queryable'  => true,
         'show_ui'             => true,
@@ -458,4 +417,17 @@ function log_me($message) {
         }
     }
 }
+
+function KANBooks_getAuthors_for_selectbox($book_id = null) {
+    global $linker;
+    $res = array();
+    if (!$book_id) {
+        $authors = get_posts(array('post_type' => 'kanbooksauthor'));
+    } 
+    //error_log(var_export($authors,1));
+    foreach ($authors as $author) {
+        $res[$author->ID] = $author->post_title;
+    }
+    return $res;
+}; 
 ?>
