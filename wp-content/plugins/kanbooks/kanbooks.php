@@ -53,6 +53,17 @@ function kanbooks_template( $template ) {
                 return plugin_dir_path(__FILE__) . '/themes/archive-kanbooks.php';
             }
     }
+    if ( is_singular("kanbooks") ) {
+        error_log("single post templ");
+        $theme_files = array(plugin_dir_path(__FILE__).'/themes/single-kanbooks.php');
+        $exists_in_theme = locate_template($theme_files, false);
+        error_log("exists in theme: ". $exists_in_theme);
+        if ( $exists_in_theme != '' ) {
+            return $exists_in_theme;
+        } else {
+            return plugin_dir_path(__FILE__) . '/themes/single-kanbooks.php';
+        }
+    }
     return $template;
 }
 
