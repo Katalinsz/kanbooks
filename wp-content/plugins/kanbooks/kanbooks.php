@@ -64,6 +64,17 @@ function kanbooks_template( $template ) {
             return plugin_dir_path(__FILE__) . '/themes/single-kanbooks.php';
         }
     }
+    if ( is_singular("kanbooksauthor") ) {
+        error_log("single post templ");
+        $theme_files = array(plugin_dir_path(__FILE__).'/themes/single-kanbooksauthor.php');
+        $exists_in_theme = locate_template($theme_files, false);
+        error_log("exists in theme: ". $exists_in_theme);
+        if ( $exists_in_theme != '' ) {
+            return $exists_in_theme;
+        } else {
+            return plugin_dir_path(__FILE__) . '/themes/single-kanbooksauthor.php';
+        }
+    }
     return $template;
 }
 
@@ -357,6 +368,20 @@ function KANBooks_getAuthors_for_selectbox($book_id = null) {
     return $res;
 }; 
 
-
+function get_books_by_author($author_id) {
+    $authors_books = []; 
+    $books = get_posts(array(
+        'post_type' => 'kanbooks', 
+        'meta_key' => 'kanbook_author', 
+    ));
+    
+    foreach ($books as $book) {
+        $authors = get_field('kanbook_author', $book->ID);
+        if (in_array($author_id, $authors)){
+            $authors_books[] = $book; 
+        }
+    }
+    return $authors_books; 
+}
 
 ?>
