@@ -21,6 +21,12 @@ get_header();
 				the_archive_description( '<div class="taxonomy-description">', '</div>' );
 			?>
 		</header><!-- .page-header -->
+		<?php 
+		$search_template = do_shortcode('[wpdreams_ajaxsearchlite]'); 
+		if (!strstr($search_template, "[wpdreams_ajaxsearchlite]")) {
+		  echo do_shortcode('[wpdreams_ajaxsearchlite]'); 
+		}
+	   ?>
 		
 		<div class="kanbooks_sortby">
     		<form action="" method="get">
