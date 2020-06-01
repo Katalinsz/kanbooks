@@ -8,34 +8,37 @@
  * Author URI: https://motif.knittedforyou.com
  * License: GPL2
  */
-error_log("plugin init"); 
+
+/* Prevent direct access */
+defined( 'ABSPATH' ) or die( "You can't access this file directly." );
+
 define('KANBOOKS_DIR' , dirname(__FILE__));
 define('KANBOOKS_INCLUDES', KANBOOKS_DIR . '/includes');
+include_once KANBOOKS_DIR.'/../../../wp-includes/pluggable.php';
 
-/* Code to define ACF, taken from: https://www.advancedcustomfields.com/resources/including-acf-within-a-plugin-or-theme/ */
-// Define path and URL to the ACF plugin.
-define( 'KANBOOKS_ACF_PATH', KANBOOKS_INCLUDES . '/acf/' );
-define( 'KANBOOKS_ACF_URL', get_stylesheet_directory_uri() . '/includes/acf/' );
-
-// Include the ACF plugin.
-include_once( KANBOOKS_ACF_PATH . 'acf.php' );
-// Customize the url setting to fix incorrect asset URLs.
-
-//add_filter('acf/settings/url', 'kanbooks_acf_settings_url');
-function kanbooks_acf_settings_url() {
-    return KANBOOKS_ACF_URL;
-}
-
-
-// (Optional) Hide the ACF admin menu item.
-add_filter('acf/settings/show_admin', 'kanbooks_acf_settings_show_admin');
-function kanbooks_acf_settings_show_admin( $show_admin ) {
-    return true;
-}
-
-add_action( 'acf/init', 'KANBooks_create_post_type' );
-add_action( 'acf/init', 'KANBooks_author_create_post_type');
-
+    /* Code to define ACF, taken from: https://www.advancedcustomfields.com/resources/including-acf-within-a-plugin-or-theme/ */
+    // Define path and URL to the ACF plugin.
+    define( 'KANBOOKS_ACF_PATH', KANBOOKS_INCLUDES . '/acf/' );
+    define( 'KANBOOKS_ACF_URL', get_stylesheet_directory_uri() . '/includes/acf/' );
+    
+    // Include the ACF plugin.
+    include_once( KANBOOKS_ACF_PATH . 'acf.php' );
+    // Customize the url setting to fix incorrect asset URLs.
+    
+    //add_filter('acf/settings/url', 'kanbooks_acf_settings_url');
+    function kanbooks_acf_settings_url() {
+        return KANBOOKS_ACF_URL;
+    }
+    
+    
+    // (Optional) Hide the ACF admin menu item.
+    add_filter('acf/settings/show_admin', 'kanbooks_acf_settings_show_admin');
+    function kanbooks_acf_settings_show_admin( $show_admin ) {
+        return true;
+    }
+    
+    add_action( 'acf/init', 'KANBooks_create_post_type' );
+    add_action( 'acf/init', 'KANBooks_author_create_post_type');
 
 /*
  * create custom field types for books and authors
@@ -282,132 +285,6 @@ function KANBooks_author_create_post_type() {
     log_me("registered new posttype");
 }
 
-function KANBooks_create_taxonomies() {
-    /////////////////////////////////
-    //Add taxonomies for books
-    /////////////////////////////////////
-    
-    // Add a taxonomy like categories
-    $labels = array(
-        'name'              => 'Types',
-        'singular_name'     => 'Type',
-        'search_items'      => 'Search Types',
-        'all_items'         => 'All Types',
-        'parent_item'       => 'Parent Type',
-        'parent_item_colon' => 'Parent Type:',
-        'edit_item'         => 'Edit Type',
-        'update_item'       => 'Update Type',
-        'add_new_item'      => 'Add New Type',
-        'new_item_name'     => 'New Type Name',
-        'menu_name'         => 'Types',
-    );
-    
-    $args = array(
-        'hierarchical'      => true,
-        'labels'            => $labels,
-        'show_ui'           => true,
-        'show_admin_column' => true,
-        'query_var'         => true,
-        'rewrite'           => array( 'slug' => 'type' ),
-    );
-    
-    register_taxonomy('KANBooks_type',array('KANBooks'),$args);
-    
-    // Add a taxonomy like tags
-    $labels = array(
-        'name'                       => 'Attributes',
-        'singular_name'              => 'Attribute',
-        'search_items'               => 'Attributes',
-        'popular_items'              => 'Popular Attributes',
-        'all_items'                  => 'All Attributes',
-        'parent_item'                => null,
-        'parent_item_colon'          => null,
-        'edit_item'                  => 'Edit Attribute',
-        'update_item'                => 'Update Attribute',
-        'add_new_item'               => 'Add New Attribute',
-        'new_item_name'              => 'New Attribute Name',
-        'separate_items_with_commas' => 'Separate Attributes with commas',
-        'add_or_remove_items'        => 'Add or remove Attributes',
-        'choose_from_most_used'      => 'Choose from most used Attributes',
-        'not_found'                  => 'No Attributes found',
-        'menu_name'                  => 'Attributes',
-    );
-    
-    $args = array(
-        'hierarchical'          => false,
-        'labels'                => $labels,
-        'show_ui'               => true,
-        'show_admin_column'     => true,
-        'update_count_callback' => '_update_post_term_count',
-        'query_var'             => true,
-        'rewrite'               => array( 'slug' => 'attribute' ),
-    );
-    
-    register_taxonomy('KANBooks_attribute','KANBooks',$args);
-    
-    /////////////////////////////////
-    //Add taxonomies for authors too
-    /////////////////////////////////////
-    
-    // Add a taxonomy like categories
-    $labels = array(
-        'name'              => 'Types',
-        'singular_name'     => 'Type',
-        'search_items'      => 'Search Types',
-        'all_items'         => 'All Types',
-        'parent_item'       => 'Parent Type',
-        'parent_item_colon' => 'Parent Type:',
-        'edit_item'         => 'Edit Type',
-        'update_item'       => 'Update Type',
-        'add_new_item'      => 'Add New Type',
-        'new_item_name'     => 'New Type Name',
-        'menu_name'         => 'Types',
-    );
-    
-    $args = array(
-        'hierarchical'      => true,
-        'labels'            => $labels,
-        'show_ui'           => true,
-        'show_admin_column' => true,
-        'query_var'         => true,
-        'rewrite'           => array( 'slug' => 'type' ),
-    );
-    
-    register_taxonomy('KANBooksAuthor_type',array('KANBooksAuthor'),$args);
-    
-    // Add a taxonomy like tags
-    $labels = array(
-        'name'                       => 'Attributes',
-        'singular_name'              => 'Attribute',
-        'search_items'               => 'Attributes',
-        'popular_items'              => 'Popular Attributes',
-        'all_items'                  => 'All Attributes',
-        'parent_item'                => null,
-        'parent_item_colon'          => null,
-        'edit_item'                  => 'Edit Attribute',
-        'update_item'                => 'Update Attribute',
-        'add_new_item'               => 'Add New Attribute',
-        'new_item_name'              => 'New Attribute Name',
-        'separate_items_with_commas' => 'Separate Attributes with commas',
-        'add_or_remove_items'        => 'Add or remove Attributes',
-        'choose_from_most_used'      => 'Choose from most used Attributes',
-        'not_found'                  => 'No Attributes found',
-        'menu_name'                  => 'Attributes',
-    );
-    
-    $args = array(
-        'hierarchical'          => false,
-        'labels'                => $labels,
-        'show_ui'               => true,
-        'show_admin_column'     => true,
-        'update_count_callback' => '_update_post_term_count',
-        'query_var'             => true,
-        'rewrite'               => array( 'slug' => 'attribute' ),
-    );
-    
-    register_taxonomy('KANBooksAuthor_attribute','KANBooksAuthor',$args);
-}
-
 function log_me($message) {
     if (WP_DEBUG === true) {
         if (is_array($message) || is_object($message)) {
@@ -430,4 +307,7 @@ function KANBooks_getAuthors_for_selectbox($book_id = null) {
     }
     return $res;
 }; 
+
+
+
 ?>
