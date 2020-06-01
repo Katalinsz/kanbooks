@@ -37,9 +37,47 @@ include_once KANBOOKS_DIR.'/../../../wp-includes/pluggable.php';
         return true;
     }
     
-    add_action( 'acf/init', 'KANBooks_create_post_type' );
-    add_action( 'acf/init', 'KANBooks_author_create_post_type');
+add_action( 'acf/init', 'KANBooks_create_post_type' );
+add_action( 'acf/init', 'KANBooks_author_create_post_type');
+add_action( 'pre_get_posts', 'kanbooks_cpt_archive_items' );
 
+add_filter('template_include', 'kanbooks_template');
+
+function kanbooks_template( $template ) {
+    if ( is_post_type_archive('kanbooks') ) {
+            $theme_files = array(plugin_dir_path(__FILE__).'themes/archive-kanbooks.php');
+            $exists_in_theme = locate_template($theme_files, false);
+            if ( $exists_in_theme != '' ) {
+                return $exists_in_theme;
+            } else {
+                return plugin_dir_path(__FILE__) . '/themes/archive-kanbooks.php';
+            }
+    }
+    return $template;
+}
+
+function kanbooks_cpt_archive_items( $query ) {
+    error_log("ordering books....");
+    if( $query->is_main_query() && !is_admin() && is_post_type_archive( 'kanbooks' ) ) {
+        if( !isset( $_GET['orderby'] ) )
+            $orderby = 'kanbooks_release_date';
+        else
+            $orderby = trim( $_GET['orderby'] );
+    
+        $query->set('order', 'ASC');
+        $query->set( 'posts_per_page', '3' );
+                
+        switch ($orderby) {
+             case 'kanbooks_release_date':
+                   $query->set( 'orderby', 'meta_value' );
+                   $query->set( 'meta_key', $orderby );
+                   break;
+             default:
+             $query->set( 'orderby', 'post_date');
+         }
+    }
+}
+    
 /*
  * create custom field types for books and authors
  */  
@@ -53,7 +91,7 @@ if( function_exists('acf_add_local_field_group') ) {
                 'label' => 'Omslagsbild',
                 'name' => 'omslagsbild',
                 'type' => 'image',
-                'instructions' => 'Upload you books image.',
+                'instructions' => 'Upload your books image.',
                 'required' => 1,
                 'conditional_logic' => 0,
                 'wrapper' => array(
@@ -232,7 +270,7 @@ function KANBooks_create_post_type() {
         'hierarchical'        => false,
         'supports'            => array( 'title', 'editor', 'author' ),
         'has_archive'         => true,
-        'rewrite'             => array( 'slug' => 'books' ),
+        'rewrite'             => array( 'slug' => 'kanbooks' ),
         'query_var'           => true,
         'show_in_rest' => true,
     );
