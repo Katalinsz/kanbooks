@@ -16,27 +16,6 @@ define('KANBOOKS_DIR' , dirname(__FILE__));
 define('KANBOOKS_INCLUDES', KANBOOKS_DIR . '/includes');
 include_once KANBOOKS_DIR.'/../../../wp-includes/pluggable.php';
 
-    /* Code to define ACF, taken from: https://www.advancedcustomfields.com/resources/including-acf-within-a-plugin-or-theme/ */
-    // Define path and URL to the ACF plugin.
-    define( 'KANBOOKS_ACF_PATH', KANBOOKS_INCLUDES . '/acf/' );
-    define( 'KANBOOKS_ACF_URL', get_stylesheet_directory_uri() . '/includes/acf/' );
-    
-    // Include the ACF plugin.
-    include_once( KANBOOKS_ACF_PATH . 'acf.php' );
-    // Customize the url setting to fix incorrect asset URLs.
-    
-    //add_filter('acf/settings/url', 'kanbooks_acf_settings_url');
-    function kanbooks_acf_settings_url() {
-        return KANBOOKS_ACF_URL;
-    }
-    
-    
-    // (Optional) Hide the ACF admin menu item.
-    add_filter('acf/settings/show_admin', 'kanbooks_acf_settings_show_admin');
-    function kanbooks_acf_settings_show_admin( $show_admin ) {
-        return true;
-    }
-    
 add_action( 'acf/init', 'KANBooks_create_post_type' );
 add_action( 'acf/init', 'KANBooks_author_create_post_type');
 add_action( 'pre_get_posts', 'kanbooks_cpt_archive_items' );
@@ -54,10 +33,8 @@ function kanbooks_template( $template ) {
             }
     }
     if ( is_singular("kanbooks") ) {
-        error_log("single post templ");
         $theme_files = array(plugin_dir_path(__FILE__).'/themes/single-kanbooks.php');
         $exists_in_theme = locate_template($theme_files, false);
-        error_log("exists in theme: ". $exists_in_theme);
         if ( $exists_in_theme != '' ) {
             return $exists_in_theme;
         } else {
@@ -65,10 +42,8 @@ function kanbooks_template( $template ) {
         }
     }
     if ( is_singular("kanbooksauthor") ) {
-        error_log("single post templ");
         $theme_files = array(plugin_dir_path(__FILE__).'/themes/single-kanbooksauthor.php');
         $exists_in_theme = locate_template($theme_files, false);
-        error_log("exists in theme: ". $exists_in_theme);
         if ( $exists_in_theme != '' ) {
             return $exists_in_theme;
         } else {
@@ -79,7 +54,6 @@ function kanbooks_template( $template ) {
 }
 
 function kanbooks_cpt_archive_items( $query ) {
-    error_log("ordering books....");
     if( $query->is_main_query() && !is_admin() && is_post_type_archive( 'kanbooks' ) ) {
         if( !isset( $_GET['orderby'] ) )
             $orderby = 'kanbooks_release_date';
@@ -342,7 +316,6 @@ function KANBooks_author_create_post_type() {
     );
     
     register_post_type( 'KANBooksAuthor', $args );
-    log_me("registered new posttype");
 }
 
 function log_me($message) {
@@ -361,7 +334,6 @@ function KANBooks_getAuthors_for_selectbox($book_id = null) {
     if (!$book_id) {
         $authors = get_posts(array('post_type' => 'kanbooksauthor'));
     } 
-    //error_log(var_export($authors,1));
     foreach ($authors as $author) {
         $res[$author->ID] = $author->post_title;
     }
