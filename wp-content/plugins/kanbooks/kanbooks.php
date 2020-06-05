@@ -19,7 +19,7 @@ include_once KANBOOKS_DIR.'/../../../wp-includes/pluggable.php';
 add_action( 'acf/init', 'KANBooks_create_post_type' );
 add_action( 'acf/init', 'KANBooks_author_create_post_type');
 add_action( 'pre_get_posts', 'kanbooks_cpt_archive_items' );
-
+add_action('admin_head','check_post_type_and_remove_media_buttons');
 add_filter('template_include', 'kanbooks_template');
 
 function kanbooks_template( $template ) {
@@ -73,7 +73,16 @@ function kanbooks_cpt_archive_items( $query ) {
          }
     }
 }
-    
+
+/*removing the post title, editor and media buttons from the kanbooks admin input page*/
+function check_post_type_and_remove_media_buttons() {
+    if (strcmp(get_post_type(), 'kanbooks') == 0) {
+        remove_post_type_support('kanbooks', 'media_buttons');
+        remove_post_type_support('kanbooks', 'editor');
+        remove_post_type_support('kanbooks', 'title');
+    }
+}
+
 /*
  * create custom field types for books and authors
  */  
@@ -264,15 +273,14 @@ function KANBooks_create_post_type() {
         'menu_icon'           => 'dashicons-admin-appearance',
         'capability_type'     => 'post',
         'hierarchical'        => false,
-        'supports'            => array( 'title', 'editor', 'author' ),
+        'supports'            => array(),
         'has_archive'         => true,
         'rewrite'             => array( 'slug' => 'kanbooks' ),
         'query_var'           => true,
-        'show_in_rest' => true,
+        'show_in_rest' => false,
     );
     
     register_post_type( 'KANBooks', $args );
-    log_me("registered new posttype");
 }
 
 ////////////Creating posttype
@@ -308,7 +316,7 @@ function KANBooks_author_create_post_type() {
         'menu_icon'           => 'dashicons-admin-appearance',
         'capability_type'     => 'post',
         'hierarchical'        => false,
-        'supports'            => array( 'title', 'editor', 'author' ),
+        'supports'            => array( 'title' ),
         'has_archive'         => true,
         'rewrite'             => array( 'slug' => 'authors' ),
         'query_var'           => true,
